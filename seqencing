@@ -1,0 +1,83 @@
+: Complete Permutation 
+时间限制: 1500 MS 内存限制: 64 MB
+提交: 201 解决: 71
+[提交][状态][讨论版]
+题目描述
+Generate the complete permutation of 1..N
+输入
+Each input file contains only one non-negative integer N (0< N < 9)
+输出
+Output N! Lines, according to lexicographic order.
+样例输入
+3
+样例输出
+1 2 3
+1 3 2
+2 1 3
+2 3 1
+3 1 2
+3 2 1
+
+#include<stdio.h>
+void Perm1(int P[],intm,int n)
+{
+	intj,r,s,x;
+	if(m==n)
+	{
+		for(r=1;r<n;r++)
+		{
+			printf("%d ",P[r]);
+		}
+		printf("%d",P[r]);
+		printf("\n");
+	}
+	else
+	{
+		for(s=m;s<=n;s++)
+		{
+			if(s==m)
+			{
+				x=P[m];
+			    P[m]=P[s];
+			    P[s]=x;
+			Perm1(P,m+1,n);
+			    x=P[m];
+			    P[m]=P[s];
+			    P[s]=x;
+			}
+			else
+			{
+				x=P[m];
+			    P[m]=P[s];
+			    P[s]=x;
+			for(j=s-1;j>m;j--)   //进行位移，致使正序。被换到后面的数字，一定比较小。
+				{
+					P[j+1]=P[j];
+			    }
+			P[j+1]=x;
+			Perm1(P,m+1,n);
+			for(j=m+1;j<s;j++)
+			    {
+				P[j]=P[j+1];
+			    }
+			    P[j]=x;
+			    x=P[m];
+			    P[m]=P[s];
+			    P[s]=x;
+			}
+		}
+	}
+};
+int main()
+{
+	intn,i;
+	scanf("%d",&n);
+	int *P=new int[n+1];
+	for(i=1;i<=n;i++)
+	{
+		P[i]=i;
+	}
+	Perm1(P,1,n);
+	delete P;
+	return 0;
+}
