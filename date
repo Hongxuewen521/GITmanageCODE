@@ -1,0 +1,171 @@
+    ckp打算去约会。大家都知道Ckp是超级大帅哥，所以和他约会的MM也超级多，她们每个人都和Ckp订了一个约会时间。但是今天Ckp刚打算出门 的时候才发现，某几个MM的约会时间有冲突。由于Ckp不会分身，还不能和多个MM同时约会，他只能忍痛割爱拒绝掉某些MM。但是Ckp这个花心大萝卜还 是不死心，他想知道，他最多可以和多少个MM约会。
+输入
+　　输入的第一行包含一个正整数N(0<N<=1000)，表示和Ckp约会的MM数。
+　　接下去N行，每行描述一个MM，格式为: Name starttime endtime，表示在[starttime,endtime)这个半开区间是这个MM的约会时间，starttime < endtime。名字由大写或小写字母组成，最长不超过15个字母，保证没有两个人拥有相同的名字，所有时间采用24小时制，格式为XX:XX，且在 06:00到23:00之间。
+输出
+　　输出的第一行是一个整数M表示Ckp最多可以和多少个MM约会。
+　　接下来那一行就是M个MM的名字，用空格隔开。您可以按照任意的顺序输出。如果存在多个答案，您可以任选一个输出。
+样例输入
+4
+Lucy 06:00 10:00
+Lily 10:00 17:00
+HanMeimei 16:00 21:00
+Kate 11:00 13:00
+样例输出
+3
+Lucy Kate HanMeimei
+提示
+来源
+xmu 
+#include<iostream>
+#include<stdio.h>
+int N,a=0;
+char *p[1002];
+struct ACTIVITY
+{   
+    char name[16];
+    int s,f;
+}MM[1002];   
+
+void max_heapify(int i,int heap_size)   
+{
+    int l=2*i,r=2*i+1,largest=i;
+	if(l<=heap_size&&MM[l].f>MM[largest].f)
+    largest=l;
+    if(r<=heap_size&&MM[r].f>MM[largest].f)
+    largest=r;
+	if(largest!=i)
+	{
+	    ACTIVITY temp=MM[i];
+		MM[i]=MM[largest];
+		MM[largest]=temp;
+		max_heapify(largest,heap_size);
+	}   
+}
+void heap_sort()   
+{
+    for(int i=N/2;i>0;i--)//建造最大堆
+	max_heapify(i,N);
+	for(int i=N;i>1;i--)
+	{
+	     ACTIVITY temp=MM[i];
+		 MM[i]=MM[1];
+		 MM[1]=temp;
+		 max_heapify(1,i-1);
+	}
+}   
+void recursive_activity_selector(int i)
+{
+    int j=i+1;
+	while(j<=N&&MM[j].s<MM[i].f)
+	j++;
+	if(j<=N)
+	{
+	    p[a++]=MM[j].name;
+		recursive_activity_selector(j);
+	}
+}
+int main()
+{
+    scanf("%d",&N);
+	MM[0].f=600;
+	for(int i=1;i<=N;i++)
+	{
+	    scanf("%s",MM[i].name);
+		char temp[6];
+		scanf("%s",temp);
+		MM[i].s=temp[0]*1000+temp[1]*100+temp[3]*10+temp[4]-'0'*1111;
+		scanf("%s",temp);
+		MM[i].f=temp[0]*1000+temp[1]*100+temp[3]*10+temp[4]-'0'*1111;
+	}
+	heap_sort();//堆排序
+	recursive_activity_selector(0);//贪心算法
+	printf("%d\n",a);
+	for(int i=0;i<a;i++)
+	    printf("%s ",p[i]);
+	return 0;
+}
+
+
+
+#include<stdio.h>
+#include<time.h>
+#include<stdlib.h>
+int N;
+int a=0,s[1001];
+struct ACT
+{
+	char name[16];
+	int began,end;
+}meimei[10001],t;
+int Partion(int p,int q)
+{
+	int i,j,random;
+	srand((int)time(0));
+	random=rand()%(q-p)+p;
+	t=meimei[random];
+	meimei[random]=meimei[q];
+	meimei[q]=t;
+	i=p-1;
+	for(j=p;j<q;j++)
+	{
+		if(meimei[j].end<meimei[q].end)
+		{
+			i=i+1;
+			t=meimei[j];
+			meimei[j]=meimei[i];
+			meimei[i]=t;
+		}
+	}
+	t=meimei[i+1];
+	meimei[i+1]=meimei[q];
+	meimei[q]=t;
+	return i+1;
+}
+void QuickSort(int p,int q)
+{
+	int r;
+	if(p>=q)
+	    return ;
+	else
+	{
+		r=Partion(p,q);
+		QuickSort(p,r-1);
+		QuickSort(r+1,q);
+		return ;
+	}
+}
+void greedy(int k)
+{
+	a++;
+	int g=k+1;
+	while(g<N&&meimei[k].end>meimei[g].began)
+	    g++;
+	if(g<N)
+	{
+		s[a]=g;
+		greedy(g);
+	}
+}
+int main()
+{
+	scanf("%d",&N);
+	int i;
+	char shijian1[6],shijian2[6];
+	for(i=0;i<N;i++)
+	{
+		scanf("%s",meimei[i].name);
+		scanf("%s",shijian1);
+		meimei[i].began=(shijian1[0]-'0')*1000+(shijian1[1]-'0')*100+(shijian1[3]-'0')*10+(shijian1[4]-'0');
+		scanf("%s",shijian2);
+		meimei[i].end=(shijian2[0]-'0')*1000+(shijian2[1]-'0')*100+(shijian2[3]-'0')*10+(shijian2[4]-'0');
+	}
+	QuickSort(0,N-1);
+	greedy(0);
+	printf("%d\n",a);
+	for(i=1;i<=a;i++)
+	{
+		printf("%s ",meimei[s[i]].name);
+	}
+	return 0;
+}
