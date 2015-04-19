@@ -1,0 +1,56 @@
+矩阵链乘法 提交  状态
+正确
+1A2A3...An，矩Ai的维数为pi-1*pi。我们都知道，使用朴素的矩阵乘法去乘两个维数分别为x,y和y,z的矩阵，所需要的乘法次数为x*y*z。矩阵链乘法问题就是如何对矩阵乘积加括号，使得它们的乘法次数达到最少。
+输入
+    输入的第一行为一个正整数N(1<=N<=200)。表示矩阵的个数。
+    输入的第二行包含N+1个整数，分别表示pi(0<=i<=N)，其中每个pi在[1,200]范围内。
+输出
+    输出一个整数表示最少要进行的乘法次数。
+样例输入
+3
+1 2 3 4
+样例输出
+18
+提示
+来源
+xmu 
+#include<stdio.h>
+#include<malloc.h>
+int main()
+{
+	int N,i,j,c,k,q;
+	scanf("%d",&N);
+	int *p=new int[N+1];
+	for(i=0;i<=N;i++)
+	{
+		scanf("%d",&p[i]);
+	}
+	int **m=(int **)malloc(sizeof(int *)*(N+1));
+	for(i=0;i<=N;++i)
+	{
+		m[i]=(int *)malloc(sizeof(int)*(N+1));
+	}
+	for(i=1;i<=N;i++)
+	{
+		m[i][i]=0;
+	}
+	for(c=2;c<=N;c++)
+	{
+		for(i=1;i<=N+1-c;i++)
+		{
+			j=i+c-1;
+			m[i][j]=1000000000;
+			for(k=i;k<=j-1;k++)
+			{
+				q=m[i][k]+m[k+1][j]+p[i-1]*p[k]*p[j];
+				if(q<m[i][j])
+				{
+					m[i][j]=q;
+				}
+			}
+		}
+	}
+	printf("%d",m[1][N]);
+	return 0;
+}
+
