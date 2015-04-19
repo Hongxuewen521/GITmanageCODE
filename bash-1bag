@@ -1,0 +1,113 @@
+1028: Game Boy Advance 
+时间限制: 1000 MS  内存限制: 64 MB  Special Judge
+提交: 11  解决: 1
+[提交][状态][讨论版]
+题目描述
+    TheBeet很喜欢玩GBA游戏。他的手机上有一个GBA的模拟器，可以模拟很多GBA的游戏。今天TheBeet找到了一个GBA Rom下载的网站，里面有很多很多很多很多很多的GBA Rom，每个游戏都有了大小mi和一个TheBeet认为它好玩的程度vi。TheBeet当然是想把它们全部下载过来，但是TheBeet手机的SD卡 空闲容量有限，只有M的容量。现在TheBeet想使手机里面保存的所有游戏好玩程度的总和最大，但是面对如此多的游戏，他放弃了。您能帮帮他么?
+输入
+    每个输入文件的第一行有两个正整数N(0<N<=1000),M(64<=M<=8192)，分别表示可供下载的游戏的数目和SD卡的空闲容量。
+    第二行包含N个正整数，表示每个游戏的大小mi(1<=mi<=1024)。
+    第三行包含N个整数vi(-10000<=vi<=10000)，表示每个游戏的好玩程度。（负数表示TheBeet讨厌这个游戏）
+输出
+    输出一个保存游戏的方案。第一行是TheBeet手机存的游戏总数目T。接下来那一行您应该输出T个正整数，表示每个游戏的编号（编号从1开始）。如果存在多个方案的最大值相同，那么您只需要输出其中任意一个。
+样例输入
+5 128
+16 128 1024 64 50
+101 200 10000 150 -100
+样例输出
+2
+1 4
+提示
+来源
+xmu 
+#include<stdio.h>
+int X[1000]={0};
+int x=0;
+void Print(int c[],int b[],int n,int w)
+{
+	if(n==0||w==0)
+	    return ;
+	if(b[(n*(b[0]+1))+w]==2)
+	{
+		Print(c,b,n-1,w-c[n]);
+		x++;
+		X[x]=n;
+	}
+	else
+	    Print(c,b,n-1,w);
+}
+int main()
+{
+	int Pn,SDm,i,j;
+	scanf("%d %d",&Pn,&SDm);
+	int *mi=new int[Pn+1];
+	int *vi=new int[Pn+1];
+	for(i=1;i<=Pn;i++)
+	{
+		scanf("%d",&mi[i]);
+	}
+	for(i=1;i<=Pn;i++)
+	{
+		scanf("%d",&vi[i]);
+	}
+	int *V=new int[(Pn+1)*(SDm+1)];
+	int *Lu=new int[(Pn+1)*(SDm+1)];     //1表示向上不添加此项，2表示倾斜添加此项收益+减存最大收益 
+	for(i=0;i<=SDm;i++)
+	{
+		V[i]=0;
+		Lu[i]=0;
+	}
+	for(i=1;i<=Pn;i++)
+	{
+		V[i*(SDm+1)]=0;
+		Lu[i*(SDm+1)]=0;
+	}
+	for(j=1;j<mi[1];j++)
+	{
+		V[SDm+1+j]=0;
+		Lu[SDm+1+j]=1;
+	}
+	for(j=mi[1];j<=SDm;j++)
+	{
+		V[SDm+1+j]=vi[1];
+		Lu[SDm+1+j]=2;
+	}
+	for(i=2;i<=Pn;i++)
+	{
+		for(j=1;j<=SDm;j++)
+		{
+			if(mi[i]>j)
+			{
+				V[i*(SDm+1)+j]=V[(i-1)*(SDm+1)+j];
+				Lu[i*(SDm+1)+j]=1;
+			}
+			else if(V[(i-1)*(SDm+1)+j]>V[((i-1)*(SDm+1)+j-mi[i])]+vi[i])
+			{
+				V[i*(SDm+1)+j]=V[(i-1)*(SDm+1)+j];
+				Lu[i*(SDm+1)+j]=1;
+			}
+			else
+			{
+				V[i*(SDm+1)+j]=V[((i-1)*(SDm+1)+j-mi[i])]+vi[i];
+				Lu[i*(SDm+1)+j]=2;
+			}
+		}
+	}
+	Lu[0]=SDm;
+	Print(mi,Lu,Pn,SDm);
+	/*for(i=0;i<(Pn+1)*(SDm+1);i++)
+	{
+		printf("%d ",Lu[i]);
+	}*/
+	printf("%d\n",x);
+	for(i=1;i<x;i++)
+	{
+		printf("%d ",X[i]);
+	}
+	printf("%d",X[i]);
+	delete mi;
+	delete vi;
+	delete V;
+	delete Lu;
+	return 0;
+}
