@@ -1,0 +1,217 @@
+ define a regular brackets sequence in the following way:
+1. Empty sequence is a regular sequence.
+2. If S is a regular sequence, then (S) and [S] are both regular sequences.
+3. If A and B are regular sequences, then AB is a regular sequence.
+For example, all of the following sequences of characters are regular brackets sequences:
+(), [], (()), ([]), ()[], ()[()]
+And all of the following character sequences are not:
+(, [, ), )(, ([)], ([(]
+Some sequence of characters '(', ')', '[', and ']' is given. You are to find the shortest possible regular brackets sequence, that contains the given character sequence as a subsequence. Here, a string a1a2...an is called a subsequence of the string b1b2...bm, if there exist such indices 1 ≤ i1 < i2 < ... < in ≤ m, that aj=bij for all 1 ≤ j ≤ n.
+输入
+The input contains at most 100 brackets (characters '(', ')', '[' and ']') that are situated on a single line without any other characters among them.
+输出
+Write to the output a single line that contains some regular brackets sequence that has the minimal possible length and contains the given sequence as a subsequence. If more than one solution exist, any of them will get AC.
+样例输入
+([(] 
+样例输出
+()[()] 
+提示
+来源
+2001-2002 ACM Northeastern European Regional Programming Contest 
+#include<iostream>
+#include<cstring>
+using namespace std;
+
+int d[100][100]; //d[i][j]表示输入字符串从下标i到下标j至少需要加的括号数 
+int c[100][100]={-1}; //c[i][j]表示从下标i到下标j的子串分割的下标，-1表示不分割 
+int len; //输入括号串的长度 
+string s; //输入的括号串 
+
+void dp()
+{
+	int i,j,k,l;
+	int min;
+	
+	for(i=0; i<len; i++) d[i][i]=1;
+	
+	for(l=1; l<len; ++l)
+	 for(i=0; i+l<len; ++i)
+	 {
+			j=i+l;
+			min=d[i][i]+d[i+1][j];
+			c[i][j]=i;
+			for(k=i+1; k<j; k++)
+			{
+				if(d[i][k]+d[k+1][j]<min)
+				{
+					min=d[i][k]+d[k+1][j];
+					c[i][j]=k;
+				}
+			}
+			d[i][j]=min;
+			
+			if(s[i]=='(' && s[j]==')' || s[i]=='[' && s[j]==']')
+			{
+				if(d[i+1][j-1] < min)
+				{
+					d[i][j]=d[i+1][j-1];
+					c[i][j]=-1;
+				}
+			}
+	 }
+}
+
+void print(int i, int j) //打印结果 
+{
+	if(i>j) return;
+	if(i==j) 
+	{
+		if(s[i]=='(' || s[i]==')') cout<<"()";
+		else cout<<"[]";
+	}
+	else
+	{
+		if(c[i][j]>=0) //从i到j从c[i][j]处分割 
+		{
+			print(i, c[i][j]);
+			print(c[i][j]+1, j);
+		}
+		else
+		{
+			if(s[i]=='(')
+			{ 
+				cout<<"(";
+				print(i+1, j-1);
+				cout<<")";
+		  }
+		  else
+		  {
+				cout<<"[";
+				print(i+1, j-1);
+				cout<<"]";
+			}
+		}
+	}
+}
+
+int main()
+{
+	
+	cin>>s; //输入括号序列 
+	
+	len=s.size();
+	dp();
+	print(0, len-1);
+	cout<<endl;
+	return 0;
+}
+
+
+
+我很棒了：
+#include<stdio.h>
+#include<malloc.h>
+void put(char C[],int **c,int x,int y)
+{
+	if(x>y)
+	{
+		return;
+	}
+	else if(x==y)
+	{
+		if(C[x]=='('||C[x]==')')
+		    printf("()");
+	    else
+	        printf("[]");
+	}
+	else if(c[x][y]<0)
+	{
+		if(C[x]=='(')
+		{
+			printf("(");
+			put(C,c,x+1,y-1);
+			printf(")");
+		}
+		else
+		{
+			printf("[");
+			put(C,c,x+1,y-1);
+			printf("]");
+		}
+	}
+	else
+	{
+		put(C,c,x,c[x][y]);
+		put(C,c,c[x][y]+1,y);
+	}
+}
+int main()
+{
+	int c,i,j,k,n;
+	char C[110];
+	gets(C);
+	for(i=0;C[i]!='\0';i++){}
+	n=i;
+	int **m=(int **)malloc(sizeof(int *)*(n));
+	for(i=0;i<n;++i)
+	{
+		m[i]=(int *)malloc(sizeof(int)*(n));
+	}
+	int **t=(int **)malloc(sizeof(int *)*(n));
+	for(i=0;i<n;++i)
+	{
+		t[i]=(int *)malloc(sizeof(int)*(n));
+	}
+	for(i=0;i<n-1;i++)
+	{
+		m[i][i]=1;
+		m[i+1][i]=0;
+		t[i][i]=i;
+	}
+	m[i][i]=1;
+	t[i][i]=i;
+	for(c=1;c<n;c++)
+	{
+		for(i=0;i<n-c;i++)
+		{
+			j=i+c;
+			if((C[i]=='('&&C[j]==')')||(C[i]=='['&&C[j]==']'))
+			{
+				m[i][j]=m[i+1][j-1];
+				t[i][j]=-1;
+			}
+			else
+			{
+				m[i][j]=m[i][i]+m[i+1][j];
+				t[i][j]=i;
+				for(k=i+1;k<j;k++)
+				{
+					if(m[i][k]+m[k+1][j]<m[i][j])
+					{
+						m[i][j]=m[i][k]+m[k+1][j];
+						t[i][j]=k;
+					}
+				}
+			}
+		}
+	}
+	/*for(j=0;j<n;j++)
+	{
+		for(i=0;i<=j;i++)
+		{
+			printf("%d ",m[i][j]);
+		}
+		printf("\n");
+	}
+	for(j=0;j<n;j++)
+	{
+		for(i=0;i<=j;i++)
+		{
+			printf("%d ",t[i][j]);
+		}
+		printf("\n");
+	}*/
+	put(C,t,0,n-1);
+	//printf("\n");
+	return 0;
+}
